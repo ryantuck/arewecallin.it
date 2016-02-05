@@ -1,0 +1,14 @@
+s3_id: AKIAJ3KN5Q7VR77RPXAQ
+s3_secret: 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
+s3_bucket: www.arewecallin.it
+
+site: website
+
+index_document: index.html
+error_document: error.html
+
+gzip: true
+
+# exclude_from_upload:
+#   - those_folders_of_stuff
+#   - i_wouldnt_want_to_upload

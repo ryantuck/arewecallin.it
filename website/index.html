@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset='UTF-8'>
+
+
+<style>body {
+  background: #333;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+div {
+  margin: 0;
+  padding: 0;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  position: absolute;
+}
+
+#container {
+  font-family: UnifrakturMaguntia;
+  width: 350px;
+  height: 70%;
+  max-height: 500px;
+  top: 50%;
+  left: 50%;
+  -webkit-perspective: 5000px;
+  perspective: 5000px;
+  transform: translate(-50%, -50%) rotateY(20deg);
+}
+
+#container p {
+  font-size: 1.5em;
+  padding: 0 5px 0 5px;
+}
+
+#container hr {
+  margin: 0 20px 0 20px;
+}
+
+.panel-node {
+  width: 100%;
+}
+
+.panel-cutout {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#content {
+  -ms-overflow-style: none;
+  overflow: -moz-scrollbars-none;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+#content, .panel-content {
+  background: #fefee0;
+}
+
+.panel-content {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.backface > * {
+  opacity: 0.25;
+}
+
+#lorem {
+  font-size: 7em;
+  float: left;
+  color: red;
+  border: 1px solid black;
+  margin-right: 5px;
+}
+
+#tree {
+  float: right;
+  width: 10em;
+  height: 10em;
+  border: 1px solid black;
+  margin: 0 5px 0 2px;
+}</style></head><body>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=0.75">
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=UnifrakturMaguntia" />
+</head>
+<body>
+  <div id="container">
+    <div id="content">
+      <p>
+      <span id="lorem">T</span>he Book of Callin' It</p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;In the beginning there was it. And man said
+      "let it be called". And it was so.  And on the third day, the sun hath
+      shineth over the land, and the all-caller hath called it. And it was
+      good</p>
+
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;Thou shalt not call it half-assed, thou shall
+      use thy full ass</p>
+
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;If thou shall call it, thou shall screameth to
+      the sky until thy voice is heard. Thou shall only calleth it or keepest
+      thy mouth shuteth</p>
+
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;Thine judgement will be swift and merciless
+      for those who refuseth to call</p>
+
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;If it is called not when day's end is nigh,
+      thy sun's slow fall shall signal the call</p>
+
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;Though shall not oppose calling of it</p>
+
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;If thy Techeth Talketh hath not come out yet,
+      then none shall call it thine people must have faith, for the Tecketh
+      Talketh will always come out</p>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+<script src='//assets.codepen.io/assets/common/stopExecutionOnTimeout.js?t=1'></script>
+<script>
+(function () {
+  var div = document.createElement('div');
+  div.style.width = '100px';
+  div.style.height = '100px';
+  div.style.overflow = 'scroll';
+  div.style.position = 'absolute';
+  div.style.top = '-9999px';
+  document.body.appendChild(div);
+
+  var scrollBarWidth = div.offsetWidth - div.clientWidth;
+
+  document.body.removeChild(div);
+
+  var style = document.createElement('style');
+  document.querySelector('head').appendChild(style);
+
+  var selector = '.panel-content';
+  var rule = `padding-right: ${scrollBarWidth}px`;
+
+  if (style.sheet) {
+    if (style.sheet.insertRule) style.sheet.insertRule(`${selector} {${rule}}`, 0);
+    else style.sheet.addRule(selector, rule);
+  }
+  else if (style.styleSheet) style.styleSheet.addRule(selector, rule);
+})();
+
+function panel(html) {
+  var panelNode = document.createElement('div');
+  var panelCutoutNode = document.createElement('div');
+  var panelContentNode = document.createElement('div');
+
+  panelNode.classList.add('panel-node');
+
+  panelCutoutNode.classList.add('panel-cutout');
+
+  panelContentNode.innerHTML = html;
+  panelContentNode.classList.add('panel-content');
+
+  panelCutoutNode.appendChild(panelContentNode);
+  panelNode.appendChild(panelCutoutNode);
+
+  return panelNode;
+}
+
+function syncPanelContent(tops, bottoms, scrollTop, containerHeight, panelHeight) {
+  for (var i = 0; i < tops.length; i++) {
+    var t = tops[i];
+    var b = bottoms[i];
+    var tTop = (i + 1) * panelHeight - scrollTop;
+    var bTop = -i * panelHeight - scrollTop - containerHeight;
+    t.style.transform = `translate3d(0,${tTop}px,0)`;
+    b.style.transform = `translate3d(0,${bTop}px,0)`;
+  }
+}
+
+function transYrotX(y,x) {
+  return `translate3d(0,${y}px,0) rotateX(${x}rad)`
+}
+
+function createScrollOverlay(el, panelHeight, num, angle) {
+  var tops = [];
+  var bottoms = [];
+
+  var topParent = el.parentNode;
+  var bottomParent = el.parentNode;
+
+  var html = el.innerHTML;
+
+  var totalTheta = 0;
+
+  for (var i = 0; i < num; i++) {
+    var topPanel = panel(html);
+    var bottomPanel = panel(html);
+
+    topPanel.style.height = `${panelHeight}px`;
+    bottomPanel.style.height = `${panelHeight}px`;
+    topPanel.style.transformOrigin = '50% 100% 0';
+    bottomPanel.style.transformOrigin = '50% 0% 0';
+
+    var topPanelContent = topPanel.querySelector('.panel-content');
+    var bottomPanelContent = bottomPanel.querySelector('.panel-content');
+
+    if (i === 0) {
+      topPanel.style.transform = transYrotX(-panelHeight, 0);
+      bottomPanel.style.top = '100%';
+      bottomPanel.style.transform = transYrotX(0, 0);
+    }
+    else {
+      topPanel.style.transform = transYrotX(-panelHeight + 0.25, angle);
+      bottomPanel.style.transform = transYrotX(panelHeight - 0.25, angle);
+
+      totalTheta += angle;
+      totalTheta %= 2 * Math.PI;
+      if (Math.PI * (1 / 2) < totalTheta && totalTheta < Math.PI * (3 / 2)) {
+        topPanelContent.classList.add('backface');
+        bottomPanelContent.classList.add('backface');
+      }
+    }
+
+    angle += 0.025;
+
+    tops.push(topPanelContent);
+    bottoms.push(bottomPanelContent);
+
+    topParent.appendChild(topPanel);
+    bottomParent.appendChild(bottomPanel);
+
+    topParent = topPanel;
+    bottomParent = bottomPanel;
+  }
+
+  syncPanelContent(tops, bottoms, 0, container.clientHeight, panelHeight);
+
+  function update() {
+    var scrollTop = el.scrollTop;
+    var containerHeight = container.clientHeight;
+    requestAnimationFrame(function() {
+      syncPanelContent(tops, bottoms, scrollTop, containerHeight, panelHeight);
+    });
+  }
+
+  el.onscroll = update;
+  window.onresize = update;
+
+}
+
+var theta = 0.3;
+var num = 20;
+if (/iPhone|Android/.test(navigator.userAgent)) {
+  theta = 0.45;
+  num = 10;
+}
+
+var $ = document.querySelector.bind(document);
+createScrollOverlay($('#content'), 20, num, theta);
+
+</script>
+</body></html>
